@@ -1,0 +1,56 @@
+<html>
+	<head>
+		<title>Welcome Back!</title>
+	</head>
+
+
+	<script type="text/javascript">
+	function HideAndShow(group) {
+	    var x = document.getElementById(group);
+	    if (x.style.display === "none") {
+	        x.style.display = "block";
+	    } else {
+	        x.style.display = "none";
+	    }
+	}
+	</script>
+	<body>
+		<h1>Welcome, {{ current_user.username }}</h1>
+		<a href="/logout">logout</a>
+		<form enctype="multipart/form-data" action="/" method="post">
+			File: <input type="file" name="upload_pdf" accept=".pdf" />
+			<input type="submit" value="upload" />
+			{% raw xsrf_form_html() %}
+		</form>
+		<table>
+			<thead>
+				<tr valign="top">
+					<th>Author</th>
+					<th>Name</th>
+					<th></th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for pdf in pdfs %}
+					<tr>
+						
+						<td>{{ pdf.user.username }}</td>
+						<td><a href="/download/pdf/{{ pdf.pk }}">{{ pdf.name }}</a></td>
+						<td><button onclick="HideAndShow('{{ pdf.pk }}')">>><button><p/>
+						
+							<table id="{{ pdf.pk }}" style="display: none">
+								{% for page in pdf.pages %}
+								<tr>
+									<td>Page #{{ page.page_number }} </td>
+									<td><a href="/download/png/{{ page.pk }}">{{ page.name }}</a></td>
+								</tr>
+								{% end %}
+							</table>
+				        </td>
+					</tr>
+					
+				{% end %}
+			</tbody>
+		</table>
+	</body>
+</html>

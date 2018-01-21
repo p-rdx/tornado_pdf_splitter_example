@@ -1,0 +1,31 @@
+<html>
+<head>
+<title>Please Log In</title>
+</head>
+
+<body>
+	{% if error %}
+	Passwords should be similar
+	{% end %}
+<form action="/register" method="POST">
+    <table>
+    	<tr>
+    		<td>Username:</td>
+    		<td><input type="text" name="username" /></td>
+    	</tr>
+    	<tr>
+    		<td>Password:</td>
+    		<td><input type="password" name="password1" /></td>
+    	</tr>
+    	<tr>
+    		<td>Repeat password:</td>
+    		<td><input type="password" name="password2" /></td>
+    	</tr>
+    </table>	
+    <p><input type="submit" value="Register" /></p>
+</ol>
+    {% module xsrf_form_html() %}
+
+</form>
+</body>
+</html>s
