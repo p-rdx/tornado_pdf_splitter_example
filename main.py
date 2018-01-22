@@ -27,6 +27,15 @@ def encode_pwd(password):
     return md5(password).hexdigest()
 
 
+def pages_generator(blob, resolution=300):
+    img = Image(blob=blob, resolution=resolution)
+    pages = img.sequence
+    for i in xrange(len(pages)):
+        img = Image(pages[i])
+        img.format = 'png'
+        yield img.make_blob()
+
+
 class BaseHandler(tornado.web.RequestHandler):
     def get_current_user(self):
         username = self.get_secure_cookie("user")
@@ -45,7 +54,7 @@ class DownloadHandler(BaseHandler):
                     options(subqueryload(PDFs.storage)).get(key)
             elif obj_type == 'png':
                 obj = db.session.query(Pages).\
-                    options(subqueryload(Pages.storage)).get()
+                    options(subqueryload(Pages.storage)).get(key)
             else:
                 raise HTTPError(404)
             self.set_header('Content-Type', 'text/csv')
@@ -74,16 +83,10 @@ class MainHandler(BaseHandler):
             db.session.add(fs)
             pdf = PDFs(name=original_fname, user=self.current_user, storage=fs)
             db.session.add(pdf)
-            img = Image(blob=infile['body'], resolution=300)
-            pages = img.sequence
             pages_data = list()
             pages_blobs = list()
-            for i in xrange(len(pages)):
-                img = Image(pages[i])
-                img.format = 'png'
-                img.alpha = 'off'
-                img.background_color = Color('white')
-                pages_blobs.append(Files(storage=img.make_blob()))
+            for i, pg in enumerate(pages_generator(infile['body'])):
+                pages_blobs.append(Files(storage=pg))
                 page_name = '{}_{}.png'.format(inp_fname, i)
                 pages_data.append(Pages(page_number=i, name=page_name,
                                         parent_pdf=pdf,
