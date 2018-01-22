@@ -5,7 +5,7 @@
 
 <body>
 	{% if error %}
-	Passwords should be similar
+	<b>{{ err_text }}</b>
 	{% end %}
 <form action="/register" method="POST">
     <table>
@@ -27,5 +27,6 @@
     {% module xsrf_form_html() %}
 
 </form>
+<a href="/login">Login</a>
 </body>
-</html>s
+</html>
