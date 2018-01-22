@@ -57,10 +57,13 @@ class DownloadHandler(BaseHandler):
                     options(subqueryload(Pages.storage)).get(key)
             else:
                 raise HTTPError(404)
-            self.set_header('Content-Type', 'text/csv')
-            self.set_header('Content-Disposition', 'attachment; '
-                            'filename={}'.format(obj.name))
-            self.write(obj.storage.storage)
+            if obj:
+                self.set_header('Content-Type', 'text/csv')
+                self.set_header('Content-Disposition', 'attachment; '
+                                'filename={}'.format(obj.name))
+                self.write(obj.storage.storage)
+            else:
+                raise HTTPError(404)
         else:
             raise HTTPError(404)
 
