@@ -10,7 +10,6 @@ from hashlib import md5
 from database import DataBase, User, Pages, PDFs, Files
 from sqlalchemy.orm import subqueryload
 from wand.image import Image
-from wand.color import Color
 from tornado.httpclient import HTTPError
 
 
