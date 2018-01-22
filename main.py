@@ -13,7 +13,7 @@ from wand.image import Image
 from tornado.httpclient import HTTPError
 
 
-define("port", default=8888, help="run on the given port", type=int)
+define('port', default=8888, help='run on the given port', type=int)
 define('dbname', default='database', help='name for sqlite database', type=str)
 
 
@@ -38,7 +38,7 @@ def pages_generator(blob, resolution=300):
 
 class BaseHandler(tornado.web.RequestHandler):
     def get_current_user(self):
-        username = self.get_secure_cookie("user")
+        username = self.get_secure_cookie('user')
         user = db.session.query(User).filter(User.username == username).first()
         return user
 
@@ -109,9 +109,14 @@ class RegisterHandler(BaseHandler):
         self.render('register.html', error=False)
 
     def post(self):
-        get_name = tornado.escape.xhtml_escape(self.get_argument("username"))
-        pwd1 = tornado.escape.xhtml_escape(self.get_argument("password1"))
-        pwd2 = tornado.escape.xhtml_escape(self.get_argument("password2"))
+        get_name = tornado.escape.xhtml_escape(self.get_argument('username'))
+        pwd1 = tornado.escape.xhtml_escape(self.get_argument('password1'))
+        pwd2 = tornado.escape.xhtml_escape(self.get_argument('password2'))
+        existed = db.session.query(User).\
+            filter(User.username == get_name).first()
+        if existed:
+            self.render('register.html', error=True,
+                        err_text='User with this username already exists')
         if pwd1 == pwd2:
             user = User(username=get_name, password=encode_pwd(pwd1))
             db.session.add(user)
@@ -120,10 +125,11 @@ class RegisterHandler(BaseHandler):
             except Exception as e:
                 print(e)
                 raise HTTPError(500)
-            self.set_secure_cookie("user", user.username)
-            self.redirect(self.reverse_url("main"))
+            self.set_secure_cookie('user', user.username)
+            self.redirect(self.reverse_url('main'))
         else:
-            self.render('register.html', error=False)
+            self.render('register.html', error=True,
+                        err_text='Passwords should be equal')
 
 
 class LoginHandler(BaseHandler):
@@ -131,41 +137,41 @@ class LoginHandler(BaseHandler):
         self.render('login.html', error=False)
 
     def post(self):
-        get_name = tornado.escape.xhtml_escape(self.get_argument("username"))
-        get_pwd = tornado.escape.xhtml_escape(self.get_argument("password"))
+        get_name = tornado.escape.xhtml_escape(self.get_argument('username'))
+        get_pwd = tornado.escape.xhtml_escape(self.get_argument('password'))
 
         user = db.session.query(User).filter(User.username == get_name).first()
         if user and user.password == md5(get_pwd).hexdigest():
-            self.set_secure_cookie("user", user.username)
-            self.redirect(self.reverse_url("main"))
+            self.set_secure_cookie('user', user.username)
+            self.redirect(self.reverse_url('main'))
         else:
             self.render('login.html', error=True)
 
 
 class LogoutHandler(BaseHandler):
     def get(self):
-        self.clear_cookie("user")
-        self.redirect(self.get_argument("next", self.reverse_url("main")))
+        self.clear_cookie('user')
+        self.redirect(self.get_argument('next', self.reverse_url('main')))
 
 
 class Application(tornado.web.Application):
     def __init__(self):
         base_dir = os.path.dirname(__file__)
         settings = {
-            "cookie_secret": "bZJc2sWbQLKos6GkHn/VB9oXwQt8S0R0kRvJ5/xJ89E=",
-            "login_url": "/login",
-            'template_path': os.path.join(base_dir, "templates"),
-            'static_path': os.path.join(base_dir, "static"),
+            'cookie_secret': 'bZJc2sWbQLKos6GkHn/VB9oXwQt8S0R0kRvJ5/xJ89E=',
+            'login_url': '/login',
+            'template_path': os.path.join(base_dir, 'templates'),
+            'static_path': os.path.join(base_dir, 'static'),
             'debug': True,
-            "xsrf_cookies": True,
+            'xsrf_cookies': True,
         }
         tornado.web.Application.__init__(self, [
-            tornado.web.url(r"/", MainHandler, name="main"),
-            tornado.web.url(r'/login', LoginHandler, name="login"),
-            tornado.web.url(r'/logout', LogoutHandler, name="logout"),
+            tornado.web.url(r'/', MainHandler, name='main'),
+            tornado.web.url(r'/login', LoginHandler, name='login'),
+            tornado.web.url(r'/logout', LogoutHandler, name='logout'),
             tornado.web.url(r'/download/([pdfng]{3})/(\d+)',
                             DownloadHandler, name='download'),
-            tornado.web.url(r'/register', RegisterHandler, name="register"),
+            tornado.web.url(r'/register', RegisterHandler, name='register'),
         ], **settings)
 
 
@@ -175,5 +181,5 @@ def main():
     tornado.ioloop.IOLoop.instance().start()
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
