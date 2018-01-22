@@ -32,12 +32,12 @@ class PDFs(Base):
     pk = Column(Integer, primary_key=True)
     name = Column(String(250), nullable=False)
     user_id = Column(Integer,
-                     ForeignKey('user.pk', onupdate="CASCADE",
-                                ondelete="CASCADE"), nullable=False, )
+                     ForeignKey('user.pk', onupdate='CASCADE',
+                                ondelete='CASCADE'), nullable=False, )
     user = relationship(User)
     storage_id = Column(Integer,
-                        ForeignKey('file_storage.pk', onupdate="CASCADE",
-                                   ondelete="CASCADE"))
+                        ForeignKey('file_storage.pk', onupdate='CASCADE',
+                                   ondelete='CASCADE'))
     storage = relationship(Files)
     pages = relationship('Pages', lazy='joined')
 
@@ -48,12 +48,12 @@ class Pages(Base):
     page_number = Column(Integer, nullable=False)
     name = Column(String(250), nullable=False)
     parent_pdf_id = Column(Integer,
-                           ForeignKey('pdfs.pk', onupdate="CASCADE",
-                                      ondelete="CASCADE"), nullable=False)
+                           ForeignKey('pdfs.pk', onupdate='CASCADE',
+                                      ondelete='CASCADE'), nullable=False)
     parent_pdf = relationship(PDFs)
     storage_id = Column(Integer,
-                        ForeignKey('file_storage.pk', onupdate="CASCADE",
-                                   ondelete="CASCADE"), nullable=False)
+                        ForeignKey('file_storage.pk', onupdate='CASCADE',
+                                   ondelete='CASCADE'), nullable=False)
     storage = relationship(Files)
 
 
@@ -66,7 +66,7 @@ class DataBase:
     не переписывая другую логику
     '''
 
-    def __init__(self, dbname="database"):
+    def __init__(self, dbname='database'):
         self.dbname = dbname
         self.engine = self.get_engine()
         Session = sessionmaker(bind=self.engine)

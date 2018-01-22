@@ -14,9 +14,10 @@ from tornado.httpclient import HTTPError
 
 
 define("port", default=8888, help="run on the given port", type=int)
+define('dbname', default='database', help='name for sqlite database', type=str)
 
 
-db = DataBase()
+db = DataBase(dbname=options.dbname)
 
 
 def encode_pwd(password):
